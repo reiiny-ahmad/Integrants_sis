@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Registration - Steps Into Space</title>
+    <style>
+        :root {
+            --primary-color: #45B7D1;
+            --secondary-color: #4ECDC4;
+            --dark-bg: rgba(10, 25, 35, 0.95);
+            --darker-bg: rgba(20, 50, 70, 0.95);
+            --text-color: #e0e7ff;
+            --accent-color: #A3BFFA;
+            --success-color: #4CAF50;
+            --error-color: #F44336;
+            --transition-speed: 0.4s;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), 
+                url('{{ url_for("static", filename="back.jpg") }}') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Navbar with subtle glass effect */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 25, 35, 0.75);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            padding: 15px 5%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 30px rgba(0, 150, 200, 0.15);
+            border-bottom: 1px solid rgba(0, 150, 200, 0.1);
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .navbar.scrolled {
+            padding: 10px 5%;
+            background: rgba(10, 25, 35, 0.85);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            opacity: 0;
+            animation: typeWriter 1.5s steps(16) 0.5s forwards, 
+                        fadeIn 0.8s ease-in 2s forwards;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .logo::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: var(--secondary-color);
+            animation: blinkCursor 0.8s infinite;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+            padding: 5px 0;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary-color);
+            transition: width var(--transition-speed) ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Main container */
+        .container {
+            margin-top: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+            padding: 2rem;
+        }
+        
+        /* Form card with minimal blur */
+        .form-card {
+            background: rgba(10, 25, 35, 0.75);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 150, 200, 0.15);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+            border: 1px solid rgba(0, 150, 200, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 150, 200, 0.2);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
+        }
+        
+        /* Form elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all var(--transition-speed) ease;
+            border: 1px solid rgba(0, 150, 200, 0.2);
+        }
+        
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2345B7D1'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            color: #ffffff; /* Texte en noir pour les options */
+        }
+        /* Style spécifique pour les options */
+        select option {
+            color: #000000; /* Texte en noir */
+            background-color: #ffffff; /* Fond blanc pour meilleure lisibilité */
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(69, 183, 209, 0.3);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        input::placeholder {
+            color: rgba(224, 231, 255, 0.6);
+        }
+        
+        /* Submit button */
+        .submit-btn {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 60%;
+            margin: 1.5rem auto 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all var(--transition-speed) ease;
+            box-shadow: 0 4px 15px rgba(69, 183, 209, 0.4);
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(69, 183, 209, 0.6);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .submit-btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 25, 35, 0.85);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            color: var(--text-color);
+            z-index: 2000;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(0, 150, 200, 0.2);
+            animation: modalFadeIn 0.4s ease-out;
+        }
+        
+        .popup h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .popup.success h3 {
+            color: var(--success-color);
+        }
+        
+        .popup.error h3 {
+            color: var(--error-color);
+        }
+        
+        .popup-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .popup-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .popup-btn-primary {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .popup-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes typeWriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blinkCursor {
+            from, to { background: transparent; }
+            50% { background: var(--secondary-color); }
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 12px 5%;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .form-card {
+                padding: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .submit-btn {
+                width: 80%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .logo {
+                margin-bottom: 10px;
+            }
+            
+            .form-card {
+                padding: 1.2rem;
+            }
+            
+            .popup-buttons {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            
+            .popup-btn {
+                width: 100%;
+            }
+        }
+    </style>
+    <script>
+        // Add scroll event for navbar
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 20) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        function showPopup(status) {
+            const popup = document.getElementById('popup');
+            const message = document.getElementById('popupMessage');
+            
+            popup.className = 'popup'; // Reset classes
+            popup.classList.add(status === 'success' ? 'success' : 'error');
+            
+            if (status === 'success') {
+                message.textContent = 'Registration Successful!';
+            } else {
+                message.textContent = 'Registration Failed. Please try again.';
+            }
+            
+            popup.style.display = 'block';
+            
+            // Add animation class
+            setTimeout(() => {
+                popup.style.opacity = '1';
+            }, 10);
+        }
+        
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            popup.style.opacity = '0';
+            
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 300);
+        }
+        
+        function addAnother() {
+            closePopup();
+            document.querySelector('form').reset();
+            
+            // Scroll to form
+            document.querySelector('.form-card').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Steps Into Space</div>
+        <div class="nav-links">
+            <a href="#">Contact</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="form-card">
+            <h2>Member Registration</h2>
+            <form method="post" onsubmit="event.preventDefault(); fetch('/', {method: 'POST', body: new FormData(this)}).then(response => response.text()).then(data => showPopup(data.includes('success') ? 'success' : 'error'));">
+                <div class="form-group">
+                    <label for="nom">Nom Complet:</label>
+                    <input type="text" id="nom" name="nom" required placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="naissance">Date de Naissance:</label>
+                    <input type="date" id="naissance" name="naissance" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ville">Ville:</label>
+                    <select id="ville" name="ville" required>
+                        <option value="">Select a City or Type Manually</option>
+                        <option value="Agadir">Agadir</option>
+                        <option value="Ahfir">Ahfir</option>
+                        <option value="Aït Melloul">Aït Melloul</option>
+                        <option value="Akhfenir">Akhfenir</option>
+                        <option value="Al Hoceïma">Al Hoceïma</option>
+                        <option value="Assilah">Assilah</option>
+                        <option value="Azilal">Azilal</option>
+                        <option value="Azrou">Azrou</option>
+                        <option value="Ben Guerir">Ben Guerir</option>
+                        <option value="Beni Mellal">Beni Mellal</option>
+                        <option value="Berkane">Berkane</option>
+                        <option value="Berrechid">Berrechid</option>
+                        <option value="Boujdour">Boujdour</option>
+                        <option value="Boulemane">Boulemane</option>
+                        <option value="Casablanca">Casablanca</option>
+                        <option value="Chefchaouen">Chefchaouen</option>
+                        <option value="Dakhla">Dakhla</option>
+                        <option value="Dcheira El Jihadia">Dcheira El Jihadia</option>
+                        <option value="El Hajeb">El Hajeb</option>
+                        <option value="El Jadida">El Jadida</option>
+                        <option value="Errachidia">Errachidia</option>
+                        <option value="Essaouira">Essaouira</option>
+                        <option value="Fès">Fès</option>
+                        <option value="Fquih Ben Salah">Fquih Ben Salah</option>
+                        <option value="Guelmim">Guelmim</option>
+                        <option value="Guercif">Guercif</option>
+                        <option value="Ifrane">Ifrane</option>
+                        <option value="Inezgane">Inezgane</option>
+                        <option value="Jerada">Jerada</option>
+                        <option value="Kariat Arekmane">Kariat Arekmane</option>
+                        <option value="Kénitra">Kénitra</option>
+                        <option value="Khemisset">Khemisset</option>
+                        <option value="Khenifra">Khenifra</option>
+                        <option value="Khouribga">Khouribga</option>
+                        <option value="Laayoune">Laayoune</option>
+                        <option value="Larache">Larache</option>
+                        <option value="Marrakech">Marrakech</option>
+                        <option value="Martil">Martil</option>
+                        <option value="Mdiq">Mdiq</option>
+                        <option value="Meknès">Meknès</option>
+                        <option value="Midelt">Midelt</option>
+                        <option value="Mohammedia">Mohammedia</option>
+                        <option value="Nador">Nador</option>
+                        <option value="Ouarzazate">Ouarzazate</option>
+                        <option value="Oued Zem">Oued Zem</option>
+                        <option value="Oujda">Oujda</option>
+                        <option value="Rabat">Rabat</option>
+                        <option value="Safi">Safi</option>
+                        <option value="Salé">Salé</option>
+                        <option value="Sefrou">Sefrou</option>
+                        <option value="Settat">Settat</option>
+                        <option value="Sidi Bennour">Sidi Bennour</option>
+                        <option value="Sidi Ifni">Sidi Ifni</option>
+                        <option value="Sidi Kacem">Sidi Kacem</option>
+                        <option value="Skhirat">Skhirat</option>
+                        <option value="Smara">Smara</option>
+                        <option value="Souk El Arbaa">Souk El Arbaa</option>
+                        <option value="Tanger">Tanger</option>
+                        <option value="Tan-Tan">Tan-Tan</option>
+                        <option value="Taounate">Taounate</option>
+                        <option value="Taroudant">Taroudant</option>
+                        <option value="Tata">Tata</option>
+                        <option value="Taza">Taza</option>
+                        <option value="Témara">Témara</option>
+                        <option value="Tiflet">Tiflet</option>
+                        <option value="Tinghir">Tinghir</option>
+                        <option value="Tiznit">Tiznit</option>
+                        <option value="Tétouan">Tétouan</option>
+                        <option value="Youssoufia">Youssoufia</option>
+                        <option value="Zagora">Zagora</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inscription">Date Inscription:</label>
+                    <input type="date" id="inscription" name="inscription" value="2025-07-17" required>
+                </div>
+                
+                <input type="submit" class="submit-btn" value="Submit">
+            </form>
+        </div>
+    </div>
+    <div id="popup" class="popup">
+        <h3 id="popupMessage"></h3>
+        <div class="popup-buttons">
+            <button class="popup-btn popup-btn-primary" onclick="addAnother()">Add Another</button>
+            <button class="popup-btn popup-btn-secondary" onclick="closePopup()">Return to Form</button>
+        </div>
+    </div>
+</body>
+</html>
