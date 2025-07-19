@@ -1,11 +1,12 @@
 from flask import Flask, request, render_template
 import pandas as pd
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
 # Define the full file path
-FILE_PATH = "C:/Users/jabry/OneDrive/Desktop/sis_inscris.xlsx"
+FILE_PATH = os.path.join(os.path.dirname(__file__), "sis_inscris.xlsx")
 
 # Load or create the Excel file
 try:
