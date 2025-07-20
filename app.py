@@ -11,7 +11,7 @@ FILE_PATH = os.path.join(os.path.dirname(__file__), "sis_inscris.xlsx")
 # Load or create the Excel file
 try:
     df = pd.read_excel(FILE_PATH, sheet_name=None)
-    if 'All Members' not in df:
+    if 'All Members SIS' not in df:
         df['All Members'] = pd.DataFrame(columns=['Nom Complet', 'Date de Naissance', 'Ville', 'Date Inscription'])
 except FileNotFoundError:
     df = {
